@@ -169,3 +169,27 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# 데이터 파일 제외
+*.csv
+*.tsv
+*.json
+*.xml
+*.parquet
+*.feather
+*.h5
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.pkl
+*.npy
+*.npz
+
+# 특정 데이터 폴더 제외
+data/
+dataset/
+datasets/
+logs/
+checkpoints/
+outputs/
