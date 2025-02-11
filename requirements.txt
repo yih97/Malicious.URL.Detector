@@ -1,0 +1,29 @@
+# 데이터 처리
+pandas
+numpy
+scipy  # 수학 및 통계 연산
+
+# 머신러닝 모델 및 평가
+scikit-learn  # 머신러닝 모델 & 평가 지표
+xgboost  # XGBoost 분류 및 회귀
+lightgbm  # LightGBM (대용량 데이터 처리 시 유용)
+catboost  # CatBoost (범주형 데이터에 강함)
+mlxtend  # 머신러닝 유틸리티 (Stacking, Ensemble 기법 지원)
+joblib  # 모델 저장 및 로드
+imbalanced-learn  # 불균형 데이터 처리 (SMOTE 등)
+
+# 모델 평가 및 해석
+shap  # 모델 해석 (SHAP values)
+lime  # 모델 설명을 위한 LIME 기법
+optuna  # 하이퍼파라미터 최적화
+hyperopt  # 또 다른 하이퍼파라미터 튜닝 라이브러리
+tqdm  # 진행률 표시 (학습 시 유용)
+
+# 데이터 시각화
+seaborn
+matplotlib
+plotly
+
+#Auto ML
+pycaret
+autogluon
