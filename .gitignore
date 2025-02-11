@@ -193,3 +193,9 @@ datasets/
 logs/
 checkpoints/
 outputs/
+
+# 데이터 파일 제외
+data/*.csv
+models/
+logs/
+submission/

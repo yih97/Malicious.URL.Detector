@@ -20,8 +20,8 @@ warnings.filterwarnings('ignore')
 
 #%%
 # 학습/평가 데이터 로드
-train_df = pd.read_csv('./data/train.csv')
-test_df = pd.read_csv('./data/test.csv')
+train_df = pd.read_csv('../data/train.csv')
+test_df = pd.read_csv('../data/test.csv')
 
 # '[.]'을 '.'으로 복구 (정규식 적용)
 train_df['URL'] = train_df['URL'].str.replace(r'\[\.\]', '.', regex=True)
