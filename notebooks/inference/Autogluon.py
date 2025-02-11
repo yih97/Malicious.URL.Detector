@@ -4,12 +4,7 @@
 #%%
 import pandas as pd
 import numpy as np
-import os
-import re
 import warnings
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.metrics import roc_auc_score
 from sklearn.utils.class_weight import compute_class_weight
 from autogluon.multimodal import MultiModalPredictor
 
@@ -20,8 +15,8 @@ warnings.filterwarnings('ignore')
 
 #%%
 # 학습/평가 데이터 로드
-train_df = pd.read_csv('../data/train.csv')
-test_df = pd.read_csv('../data/test.csv')
+train_df = pd.read_csv('../../data/train.csv')
+test_df = pd.read_csv('../../data/test.csv')
 
 # '[.]'을 '.'으로 복구 (정규식 적용)
 train_df['URL'] = train_df['URL'].str.replace(r'\[\.\]', '.', regex=True)
