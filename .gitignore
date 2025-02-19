@@ -194,6 +194,8 @@ checkpoints/
 outputs/
 data/*
 !data/.gitkeep
+submission/*
+!submission/.gitkeep
 
 # 데이터 파일 제외
 models/

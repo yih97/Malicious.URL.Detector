@@ -2,6 +2,7 @@
 pandas
 numpy
 scipy  # 수학 및 통계 연산
+tldextract
 
 # 머신러닝 모델 및 평가
 scikit-learn  # 머신러닝 모델 & 평가 지표
@@ -31,4 +32,6 @@ autogluon
 # torch
 torch == 2.5.1
 torchvision == 0.20.1
+
+
 
