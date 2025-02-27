@@ -1,11 +1,13 @@
 # %%
 import pandas as pd
 import numpy as np
-
 import seaborn as sns
 import matplotlib.pyplot as plt
-
 import warnings
+from urllib.parse import urlparse
+import tldextract
+from collections import Counter
+import math
 
 warnings.filterwarnings(action='ignore')
 
@@ -18,12 +20,39 @@ test = pd.read_csv('../data/test.csv')
 train['URL'] = train['URL'].str.replace(r'\[\.\]', '.', regex=True)
 test['URL'] = test['URL'].str.replace(r'\[\.\]', '.', regex=True)
 
+
+# %%
+# 엔트로피 계산 함수 정의
+def calculate_entropy(text):
+    """
+    주어진 문자열의 엔트로피를 계산합니다.
+
+    Parameters:
+    text (str): 엔트로피를 계산할 문자열
+
+    Returns:
+    float: 계산된 엔트로피 값
+    """
+    if not text:
+        return 0
+
+    # 각 문자의 빈도수 계산
+    counter = Counter(text)
+
+    # 문자열 길이
+    length = len(text)
+
+    # 각 문자의 확률 계산 후 엔트로피 계산
+    entropy = 0
+    for count in counter.values():
+        probability = count / length
+        entropy -= probability * math.log2(probability)
+
+    return entropy
+
+
 # %%
 # URL 구조 세분화 전처리 과정 추가
-from urllib.parse import urlparse
-import tldextract
-
-
 def extract_url_features(df):
     # URL 기본 구성요소 추출: scheme, netloc, path, params, query, fragment
     parsed_urls = df['URL'].apply(urlparse)
@@ -94,10 +123,42 @@ train['and_count'] = train['URL'].str.count(r'\&')
 test['and_count'] = test['URL'].str.count(r'\&')
 
 # %%
-# 상관계수 계산
+# 엔트로피 특성 추가
+# 전체 URL의 엔트로피
+train['url_entropy'] = train['URL'].apply(calculate_entropy)
+test['url_entropy'] = test['URL'].apply(calculate_entropy)
+
+# 도메인 부분의 엔트로피
+train['domain_entropy'] = train['netloc'].apply(calculate_entropy)
+test['domain_entropy'] = test['netloc'].apply(calculate_entropy)
+
+# 경로 부분의 엔트로피
+train['path_entropy'] = train['path'].apply(calculate_entropy)
+test['path_entropy'] = test['path'].apply(calculate_entropy)
+
+# 쿼리 부분의 엔트로피
+train['query_entropy'] = train['query'].apply(calculate_entropy)
+test['query_entropy'] = test['query'].apply(calculate_entropy)
+
+# 서브도메인 부분의 엔트로피
+train['subdomain_entropy'] = train['subdomain_text'].apply(calculate_entropy)
+test['subdomain_entropy'] = test['subdomain_text'].apply(calculate_entropy)
+
+# TLD 부분의 엔트로피
+train['tld_entropy'] = train['suffix_text'].apply(calculate_entropy)
+test['tld_entropy'] = test['suffix_text'].apply(calculate_entropy)
+
+# 최상위 도메인의 엔트로피
+train['main_domain_entropy'] = train['domain_text'].apply(calculate_entropy)
+test['main_domain_entropy'] = test['domain_text'].apply(calculate_entropy)
+
+# %%
+# 상관계수 계산 (새로 추가된 엔트로피 특성 포함)
 feature_cols = ['length', 'subdomain_count', 'special_char_count',
                 'digit_count', 'digit_ratio', 'uppercase_count', 'uppercase_ratio',
-                'abnormal_chars', 'dots_count', 'path_length', 'query_count', 'and_count']
+                'abnormal_chars', 'dots_count', 'path_length', 'query_count', 'and_count',
+                'url_entropy', 'domain_entropy', 'path_entropy', 'query_entropy',
+                'subdomain_entropy', 'tld_entropy', 'main_domain_entropy']
 
 correlation_matrix = train[feature_cols + ['label']].corr()
 
@@ -117,6 +178,39 @@ final_test = test[['ID', 'URL'] + selected_features]
 
 print("\n최종 학습 데이터 shape:", final_train.shape)
 print("최종 테스트 데이터 shape:", final_test.shape)
+
 # %%
-final_train.to_csv('../data/preprocessed_data/final_train.csv', index=False)
-final_test.to_csv('../data/preprocessed_data/final_test.csv', index=False)
+# 엔트로피 특성의 분포 시각화
+plt.figure(figsize=(12, 8))
+
+for i, feature in enumerate(['url_entropy', 'domain_entropy', 'path_entropy',
+                             'query_entropy', 'subdomain_entropy', 'main_domain_entropy']):
+    plt.subplot(2, 3, i + 1)
+    sns.histplot(data=train, x=feature, hue='label', kde=True, bins=30)
+    plt.title(f'{feature} 분포')
+    plt.xlabel(feature)
+    plt.ylabel('빈도')
+
+plt.tight_layout()
+plt.savefig('../data/entropy_features_distribution.png')
+plt.show()
+
+# %%
+# 엔트로피 특성과 다른 주요 특성 간의 산점도
+plt.figure(figsize=(15, 10))
+
+# 상위 4개 특성과 url_entropy의 관계
+top_features = label_corr.iloc[1:5].index.tolist()  # label 제외한 상위 4개 특성
+
+for i, feature in enumerate(top_features):
+    plt.subplot(2, 2, i + 1)
+    sns.scatterplot(data=train, x=feature, y='url_entropy', hue='label', alpha=0.7)
+    plt.title(f'{feature} vs url_entropy')
+
+plt.tight_layout()
+plt.savefig('../data/entropy_correlation_scatter.png')
+plt.show()
+
+# %%
+final_train.to_csv('../data/preprocessed_data/final_train_with_entropy.csv', index=False)
+final_test.to_csv('../data/preprocessed_data/final_test_with_entropy.csv', index=False)
